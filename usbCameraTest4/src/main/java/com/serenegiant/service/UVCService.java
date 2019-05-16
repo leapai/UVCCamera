@@ -24,10 +24,13 @@
 package com.serenegiant.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -46,6 +49,9 @@ public class UVCService extends BaseService {
 	private static final String TAG = "UVCService";
 
 	private static final int NOTIFICATION = R.string.app_name;
+
+	public static final String ANDROID_CHANNEL_ID = "com.serenegiant.service.ANDROID";
+	public static final String ANDROID_CHANNEL_NAME = "ANDROID CHANNEL";
 
 	private USBMonitor mUSBMonitor;
 	private NotificationManager mNotificationManager;
@@ -119,15 +125,43 @@ public class UVCService extends BaseService {
 	 */
 	private void showNotification(final CharSequence text) {
 		if (DEBUG) Log.v(TAG, "showNotification:" + text);
-        // Set the info for the views that show in the notification panel.
-        final Notification notification = new Notification.Builder(this)
-			.setSmallIcon(R.drawable.ic_launcher)  // the status icon
-			.setTicker(text)  // the status text
-			.setWhen(System.currentTimeMillis())  // the time stamp
-			.setContentTitle(getText(R.string.app_name))  // the label of the entry
-			.setContentText(text)  // the contents of the entry
-			.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))  // The intent to send when the entry is clicked
-			.build();
+
+        final Notification notification;
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel androidChannel = new NotificationChannel(ANDROID_CHANNEL_ID,
+                    ANDROID_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            // Sets whether notifications posted to this channel should display notification lights
+            androidChannel.enableLights(true);
+            // Sets whether notification posted to this channel should vibrate.
+            androidChannel.enableVibration(true);
+            // Sets the notification light color for notifications posted to this channel
+            androidChannel.setLightColor(Color.GREEN);
+            // Sets whether notifications posted to this channel appear on the lockscreen or not
+            androidChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+
+            mNotificationManager.createNotificationChannel(androidChannel);
+
+            // Set the info for the views that show in the notification panel.
+            notification = new Notification.Builder(this, ANDROID_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(getText(R.string.app_name))  // the label of the entry
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))  // The intent to send when the entry is clicked
+                .build();
+        } else {
+            // Set the info for the views that show in the notification panel.
+            notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(getText(R.string.app_name))  // the label of the entry
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))  // The intent to send when the entry is clicked
+                .build();
+        }
 
 		startForeground(NOTIFICATION, notification);
         // Send the notification.
