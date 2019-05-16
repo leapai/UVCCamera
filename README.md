@@ -1,3 +1,6 @@
+### Notes on deepgl branch
+1. Use ndk r13b
+
 UVCCamera
 =========
 
