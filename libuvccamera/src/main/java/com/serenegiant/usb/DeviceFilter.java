@@ -378,6 +378,22 @@ public final class DeviceFilter {
 			return true;
 		}
 
+		// wrc4++ issue 436???
+//		if (device.getProductName() != null && device.getProductName().equals("USB 2.0 PC Camera")) {
+//			return true;
+//		}
+
+		// Fix for a taobao camera
+		if ((device.getDeviceClass()==0) && (device.getDeviceSubclass()==2) && (device.getDeviceProtocol()==3)){
+			return true;
+		}
+
+		// Fix for deepglint provided camera
+		if ((device.getDeviceClass()==14) && (device.getDeviceSubclass()==2) && (device.getDeviceProtocol()==0)){
+			return true;
+		}
+		// wrc4--
+
 		// if device doesn't match, check the interfaces
 		final int count = device.getInterfaceCount();
 		for (int i = 0; i < count; i++) {
