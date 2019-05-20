@@ -388,6 +388,11 @@ public final class DeviceFilter {
 			return true;
 		}
 
+		// Fix for a camera from Rong
+		if ((device.getDeviceClass()==230) && (device.getDeviceSubclass()==2) && (device.getDeviceProtocol()==0)){
+			return true;
+		}
+
 		// Fix for deepglint provided camera
 		if ((device.getDeviceClass()==14) && (device.getDeviceSubclass()==2) && (device.getDeviceProtocol()==0)){
 			return true;
